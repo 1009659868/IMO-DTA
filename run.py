@@ -26,13 +26,13 @@ from metrics import *
 from model import net
 from sklearn.metrics import roc_auc_score, accuracy_score
 from utils.run_helper import *
-# 设置 max_split_size_mb 以避免内存碎片化
+
 os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'max_split_size_mb:64'
 
 auc_score=None
 
 def show_device():
-    torch.cuda.init()  # 显式初始化CUDA
+    torch.cuda.init()  
     if torch.cuda.is_available():
         gpu_num= torch.cuda.device_count()
         for i in range(gpu_num):
@@ -41,9 +41,9 @@ def show_device():
 def get_device():
     show_device()
     if torch.cuda.is_available():
-        device = torch.device("cuda:0")  # 默认使用第一个GPU
+        device = torch.device("cuda:0")  
         if torch.cuda.device_count() > 1:
-            device = torch.device("cuda")  # 使用所有的GPU
+            device = torch.device("cuda")  
     else:
         device = torch.device("cpu")
     return device
@@ -183,7 +183,6 @@ def train(train_loader, model, Tags, NUM_FILTERS, FILTER_LENGTH1, FILTER_LENGTH2
     model.train()
     loss_func = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(),lr=0.0002)
-    # print("get in")
     with tqdm(train_loader) as t:
         for drug_SMILES, target_protein, affinity, atom_feature, res_feature in t:
             res_feature = pad_sequence(res_feature, batch_first=True, padding_value=0)
@@ -332,7 +331,6 @@ def optimal_param_training(Drug, Target, Affinity, Atom, Protein, label_row_inde
     all_predictions, all_losses, all_auc, all_aupr = [0] * w, [0] * w, [0] * w, [0] * w
     all_preaffinities, all_affinities = [], []
 
-    # ..............................
     for foldindex in range(len(val_sets)):
         valindexs, labeledindexs = val_sets[foldindex], labeled_sets[foldindex]
         train_loader, test_loader = prepare_loaders(Drug, Target, Affinity, Atom, Protein, label_row_indexs,
